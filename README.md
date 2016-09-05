@@ -7,11 +7,11 @@ CC share-alike. Anyone is free to do anything they like with All Y'All's source,
 # CHANGELOG:
 - 0.6b: Compatability with MOLE (and eventually StationScience)
 - 0.5: Bugfix release
-- - Fixed bug in science experiments: AYA allowed you to run Mystery Goo and Materials Bay science that had been collected, but not reset.
+  - Fixed bug in science experiments: AYA allowed you to run Mystery Goo and Materials Bay science that had been collected, but not reset.
 - 0.4: Bugfix release
-- - Fixed bug in science experiments: AYA allowed you to perform surface samples in a command chair without having to upgrade R&D
-- - Fixed bug in science experiments: AYA would only run the first experiment it came across in any given part. Now it will run each experiment in turn for all parts. Note this did not affect the stock game, but would affect any modded parts with multiple experiments.
-- - Included all source files in source zip, to hopefully make it easier for others to build from source.
+  - Fixed bug in science experiments: AYA allowed you to perform surface samples in a command chair without having to upgrade R&D
+  - Fixed bug in science experiments: AYA would only run the first experiment it came across in any given part. Now it will run each experiment in turn for all parts. Note this did not affect the stock game, but would affect any modded parts with multiple experiments.
+  - Included all source files in source zip, to hopefully make it easier for others to build from source.
 - 0.3: Science Experiments confirmed working.
 - 0.2: Radiators confirmed working.
 - 0.1: Solar panels confirmed working.
