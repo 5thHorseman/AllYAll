@@ -5,7 +5,8 @@ One-Button Common Action Grouping
 CC share-alike. Anyone is free to do anything they like with All Y'All's source, so long as they allow others to do the same.
 
 # CHANGELOG:
-- 0.6b: Compatability with MOLE (and eventually StationScience)
+- 0.7: Recompile for KSP 1.2 (Prerelease, should work in final as well)
+- 0.6: Quick fix for M.O.L.E. parts. They utilize ModuleScienceExperiment but shouldn't be auto-collected. I've hard coded to ignore them when triggering science.
 - 0.5: Bugfix release
   - Fixed bug in science experiments: AYA allowed you to run Mystery Goo and Materials Bay science that had been collected, but not reset.
 - 0.4: Bugfix release
