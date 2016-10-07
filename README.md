@@ -5,6 +5,12 @@ One-Button Common Action Grouping
 CC share-alike. Anyone is free to do anything they like with All Y'All's source, so long as they allow others to do the same.
 
 # CHANGELOG:
+- 0.8: Added functionality to the new 1.2 "Science Box."
+  - "Perform All Science" even though it's not actually a science experiment, for ease of use.
+  - "Reset All Science" - the good part.
+    - Will reset all experiments whose data has not been collected.
+    - Will reset Mystery Goo and Science Jr (and hopefully any modded science) if you have a scientist on board.
+    - Usage: Pin the Science Box right-click menu, then click in turn "perform science", "collect data", and "reset science." Repeat in all biomes.
 - 0.7: Recompile for KSP 1.2 (Prerelease, should work in final as well)
 - 0.6: Quick fix for M.O.L.E. parts. They utilize ModuleScienceExperiment but shouldn't be auto-collected. I've hard coded to ignore them when triggering science.
 - 0.5: Bugfix release
