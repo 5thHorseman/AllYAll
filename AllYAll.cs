@@ -79,52 +79,138 @@ namespace AllYAll
                 {
                     if (thisExperiment != null)                                     //Only continue it if it's actually a ModuleScienceExperiment (which it should always be but hey)
                     {
-//						print ("AYA: Start Experiment Dump");
-//						print ("AYA: thisExperiment.ClassName " + thisExperiment.ClassName);
-//						print ("AYA: thisExperiment.collectActionName " + thisExperiment.collectActionName);
-//						print ("AYA: thisExperiment.collectWarningText " + thisExperiment.collectWarningText);
-//						print ("AYA: thisExperiment.collectWarningText " + thisExperiment.collectWarningText);
-//						print ("AYA: thisExperiment.cooldownString " + thisExperiment.cooldownString);
-//						print ("AYA: thisExperiment.dataIsCollectable " + thisExperiment.dataIsCollectable);
-//						print ("AYA: thisExperiment.deployableSeated " + thisExperiment.deployableSeated);
-//						print ("AYA: thisExperiment.Deployed " + thisExperiment.Deployed);
-//						print ("AYA: thisExperiment.enabled " + thisExperiment.enabled);
-//						print ("AYA: thisExperiment.experimentActionName " + thisExperiment.experimentActionName);
-//						print ("AYA: thisExperiment.experimentID " + thisExperiment.experimentID);
-//						print ("AYA: thisExperiment.GUIName " + thisExperiment.GUIName);
-//						print ("AYA: thisExperiment.Inoperable " + thisExperiment.Inoperable);
-//						print ("AYA: thisExperiment.isActiveAndEnabled " + thisExperiment.isActiveAndEnabled);
-//						print ("AYA: thisExperiment.isEnabled " + thisExperiment.isEnabled);
-//						print ("AYA: thisExperiment.moduleName " + thisExperiment.moduleName);
-//						print ("AYA: thisExperiment.name " + thisExperiment.name);
-//						print ("AYA: thisExperiment.rerunnable " + thisExperiment.rerunnable);
-//						print ("AYA: thisExperiment.resetActionName " + thisExperiment.resetActionName);
-//						print ("AYA: thisExperiment.resettable " + thisExperiment.resettable);
-//						print ("AYA: thisExperiment.resettableOnEVA " + thisExperiment.resettableOnEVA);
-//						print ("AYA: thisExperiment.reviewActionName " + thisExperiment.reviewActionName);
-//						print ("AYA: thisExperiment.experiment.experimentTitle " + thisExperiment.experiment.experimentTitle);
-//						print ("AYA: thisExperiment.experiment.requiredExperimentLevel " + thisExperiment.experiment.requiredExperimentLevel);
                         if (thisExperiment.experimentActionName == "Take Surface Sample") //If it's a surface sample, we need to make sure it's not locked out.
                         {
 							if (ScenarioUpgradeableFacilities.GetFacilityLevel (SpaceCenterFacility.ResearchAndDevelopment) > 0) // Are you allowed to do surface samples? NOTE: 0 is tier 1. 0.5 is tier 2. 1 is tier 3. These could change if more tiers are added.
 							{
 								if (!thisExperiment.Deployed) {
 									thisExperiment.DeployExperiment (); //Deploy the experiment if it's not already deployed
-//									print ("AYA: Deployed Surface Sample that had not yet been deployed");
+									//print ("AYA: Deployed Surface Sample that had not yet been deployed");
 								}
-//								else print ("AYA: Did not deploy Surface Sample as it had previously been deployed.");
+								//else print ("AYA: Did not deploy Surface Sample as it had previously been deployed.");
 							}
-//							else print ("AYA: Did not deploy Surface Sample as R&D is the lowest tier.");
+							//else print ("AYA: Did not deploy Surface Sample as R&D is the lowest tier.");
                         }
-						else
+                        else if (thisExperiment.experimentID.Substring(0,3) == "WBI") //If it's a WBI experiment, from M.O.L.E., don't do it becuase those are special.
                         {
-							if (!thisExperiment.Deployed)
-							{
-								thisExperiment.DeployExperiment (); //Deploy the experiment if it's not already deployed
-//								print ("AYA: Deployed experiment that had not been previously deployed.");
-							}
-//							else print ("AYA: Did not deploy experiment as it had previously been deployed.");
+                            // Do nothing
                         }
+						else if (!thisExperiment.Deployed)
+						{
+							thisExperiment.DeployExperiment (); //Deploy the experiment if it's not already deployed
+							//print ("AYA: Deployed experiment that had not been previously deployed.");
+						}
+						//else print ("AYA: Did not deploy experiment.");
+                    }
+                }
+            }
+        }
+    }
+
+    // ############# SCIENCE BOX ############### //
+    public class AYA_ScienceBox : PartModule
+    {
+        [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Reset All Science")]
+        public void DoResetScience()
+        {
+            bool haveScientist = false;
+            foreach (ProtoCrewMember crewMember in vessel.GetVesselCrew())
+            {
+                if (crewMember.trait == "Scientist")
+                {
+                    haveScientist = true;
+                }
+            }
+            foreach (Part eachPart in vessel.Parts)                                 //Cycle through each part on the vessel
+            {
+                foreach (ModuleScienceExperiment thisExperiment in eachPart.FindModulesImplementing<ModuleScienceExperiment>())
+                                                                                    //Cycle through each ModuleScienceExperiment module in the part
+                {
+                    if (thisExperiment != null)                                     //Only continue it if it's actually a ModuleScienceExperiment (which it should always be but hey)
+                    {
+                        /*
+                        print("AYA: Start Experiment Dump");
+                        print("AYA: thisExperiment.ClassName " + thisExperiment.ClassName);
+                        print("AYA: thisExperiment.collectActionName " + thisExperiment.collectActionName);
+                        print("AYA: thisExperiment.collectWarningText " + thisExperiment.collectWarningText);
+                        print("AYA: thisExperiment.collectWarningText " + thisExperiment.collectWarningText);
+                        print("AYA: thisExperiment.containersDirty" + thisExperiment.containersDirty);
+                        print("AYA: thisExperiment.cooldownString " + thisExperiment.cooldownString);
+                        print("AYA: thisExperiment.cooldownTimer" + thisExperiment.cooldownTimer);
+                        print("AYA: thisExperiment.cooldownToGo" + thisExperiment.cooldownToGo);
+                        print("AYA: thisExperiment.experiment" + thisExperiment.experiment);
+                        print("AYA: thisExperiment.dataIsCollectable " + thisExperiment.dataIsCollectable);
+                        print("AYA: thisExperiment.deployableSeated " + thisExperiment.deployableSeated);
+                        print("AYA: thisExperiment.Deployed " + thisExperiment.Deployed);
+                        print("AYA: thisExperiment.enabled " + thisExperiment.enabled);
+                        print("AYA: thisExperiment.experimentActionName " + thisExperiment.experimentActionName);
+                        print("AYA: thisExperiment.experimentID " + thisExperiment.experimentID);
+                        print("AYA: thisExperiment.fxModuleIndices" + thisExperiment.fxModuleIndices);
+                        print("AYA: thisExperiment.hasContainer" + thisExperiment.hasContainer);
+                        print("AYA: thisExperiment.interactionRange" + thisExperiment.interactionRange);
+                        print("AYA: thisExperiment.moduleIsEnabled" + thisExperiment.moduleIsEnabled);
+                        print("AYA: thisExperiment.overrideStagingIconIfBlank" + thisExperiment.overrideStagingIconIfBlank);
+                        print("AYA: thisExperiment.part" + thisExperiment.part);
+                        print("AYA: thisExperiment.resHandler" + thisExperiment.resHandler);
+                        print("AYA: thisExperiment.resourceResetCost" + thisExperiment.resourceResetCost);
+                        print("AYA: thisExperiment.resourceToReset" + thisExperiment.resourceToReset);
+                        print("AYA: thisExperiment.showUpgradesInModuleInfo" + thisExperiment.showUpgradesInModuleInfo);
+                        print("AYA: thisExperiment.snapshot" + thisExperiment.snapshot);
+                        print("AYA: thisExperiment.stagingDisableText" + thisExperiment.stagingDisableText);
+                        print("AYA: thisExperiment.stagingEnabled" + thisExperiment.stagingEnabled);
+                        print("AYA: thisExperiment.stagingEnableText" + thisExperiment.stagingEnableText);
+                        print("AYA: thisExperiment.stagingToggleEnabledEditor" + thisExperiment.stagingToggleEnabledEditor);
+                        print("AYA: thisExperiment.stagingToggleEnabledFlight" + thisExperiment.stagingToggleEnabledFlight);
+                        print("AYA: thisExperiment.tag" + thisExperiment.tag);
+                        print("AYA: thisExperiment.transform" + thisExperiment.transform);
+                        print("AYA: thisExperiment.transmitWarningText" + thisExperiment.transmitWarningText);
+                        print("AYA: thisExperiment.upgrades" + thisExperiment.upgrades);
+                        print("AYA: thisExperiment.upgradesApplied" + thisExperiment.upgradesApplied);
+                        print("AYA: thisExperiment.upgradesApply" + thisExperiment.upgradesApply);
+                        print("AYA: thisExperiment.upgradesAsk" + thisExperiment.upgradesAsk);
+                        print("AYA: thisExperiment.usageReqMaskExternal" + thisExperiment.usageReqMaskExternal);
+                        print("AYA: thisExperiment.usageReqMaskInternal" + thisExperiment.usageReqMaskInternal);
+                        print("AYA: thisExperiment.useActionGroups" + thisExperiment.useActionGroups);
+                        print("AYA: thisExperiment.useCooldown" + thisExperiment.useCooldown);
+                        print("AYA: thisExperiment.useGUILayout" + thisExperiment.useGUILayout);
+                        print("AYA: thisExperiment.useStaging" + thisExperiment.useStaging);
+                        print("AYA: thisExperiment.vessel" + thisExperiment.vessel);
+                        print("AYA: thisExperiment.xmitDataScalar" + thisExperiment.xmitDataScalar);
+                        print("AYA: thisExperiment.GUIName " + thisExperiment.GUIName);
+                        print("AYA: thisExperiment.Inoperable " + thisExperiment.Inoperable);
+                        print("AYA: thisExperiment.isActiveAndEnabled " + thisExperiment.isActiveAndEnabled);
+                        print("AYA: thisExperiment.isEnabled " + thisExperiment.isEnabled);
+                        print("AYA: thisExperiment.moduleName " + thisExperiment.moduleName);
+                        print("AYA: thisExperiment.name " + thisExperiment.name);
+                        print("AYA: thisExperiment.rerunnable " + thisExperiment.rerunnable);
+                        print("AYA: thisExperiment.resetActionName " + thisExperiment.resetActionName);
+                        print("AYA: thisExperiment.resettable " + thisExperiment.resettable);
+                        print("AYA: thisExperiment.resettableOnEVA " + thisExperiment.resettableOnEVA);
+                        print("AYA: thisExperiment.reviewActionName " + thisExperiment.reviewActionName);
+                        print("AYA: thisExperiment.experiment.experimentTitle " + thisExperiment.experiment.experimentTitle);
+                        print("AYA: thisExperiment.experiment.requiredExperimentLevel " + thisExperiment.experiment.requiredExperimentLevel);
+                        print("AYA: thisExperiment.experimentID.Substring(0,3) = " + thisExperiment.experimentID.Substring(0, 3));
+                        */
+                        if (thisExperiment.experimentID.Substring(0, 3) == "WBI") //If it's a WBI experiment, from M.O.L.E., don't do it becuase those are special.
+                        {
+                            // Do nothing
+                        }
+                        else if (thisExperiment.Deployed)
+                        {
+                            if (thisExperiment.Inoperable)
+//                            if (thisExperiment.experimentActionName == "Observe Mystery Goo" || thisExperiment.experimentActionName == "Observe Materials Bay")
+                            {
+                                if (haveScientist)
+                                {
+                                    thisExperiment.ResetExperimentExternal();
+                                }
+                            }
+                            else
+                            {
+                                thisExperiment.ResetExperimentExternal();
+                            }
+                        }
+                        //else print ("AYA: Did not deploy experiment.");
                     }
                 }
             }
@@ -161,102 +247,102 @@ namespace AllYAll
         }
     */
 
-    // ############# FUEL CELLS ############### //
-    //
-    // I have no idea how to make these work, along with all other "resourceconverters."
-    // I think I could make them all activate all other resourceconverters, but that would be bad.
-    /*
-    public class AYA_FuelCell : PartModule
-    {
-        [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Start All")]
-        public void StartAllFuelCells()
+        // ############# FUEL CELLS ############### //
+        //
+        // I have no idea how to make these work, along with all other "resourceconverters."
+        // I think I could make them all activate all other resourceconverters, but that would be bad.
+        /*
+        public class AYA_FuelCell : PartModule
         {
-            foreach (Part eachPart in vessel.Parts)
+            [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Start All")]
+            public void StartAllFuelCells()
             {
-                var thisPart = eachPart.FindModuleImplementing<ModuleF>();
-                if (thisPart != null) thisPart.Extend();
+                foreach (Part eachPart in vessel.Parts)
+                {
+                    var thisPart = eachPart.FindModuleImplementing<ModuleF>();
+                    if (thisPart != null) thisPart.Extend();
+                }
             }
-        }
-        [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Stop All")]
-        public void StopAllFuelCells()
-        {
-            foreach (Part eachPart in vessel.Parts)
+            [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Stop All")]
+            public void StopAllFuelCells()
             {
-                var thisPart = eachPart.FindModuleImplementing<ModuleDeployableRadiator>();
-                if (thisPart != null) thisPart.Retract();
+                foreach (Part eachPart in vessel.Parts)
+                {
+                    var thisPart = eachPart.FindModuleImplementing<ModuleDeployableRadiator>();
+                    if (thisPart != null) thisPart.Retract();
+                }
             }
-        }
-    }*/
+        }*/
 
-    // ############# DRILLS ############### //
-    //
-    // This doesn't work. I don't know how to make it work.
-    /*
-    public class AYA_Drill : PartModule
-    {
-        [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Start All")]
-        public void ExtendAllDrills()
+        // ############# DRILLS ############### //
+        //
+        // This doesn't work. I don't know how to make it work.
+        /*
+        public class AYA_Drill : PartModule
         {
-            foreach (Part eachPart in vessel.Parts)
+            [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Start All")]
+            public void ExtendAllDrills()
             {
-                var thisPart = eachPart.FindModuleImplementing<ModuleAsteroidDrill>();
-                if (thisPart != null) thisPart.StartResourceConverter();
+                foreach (Part eachPart in vessel.Parts)
+                {
+                    var thisPart = eachPart.FindModuleImplementing<ModuleAsteroidDrill>();
+                    if (thisPart != null) thisPart.StartResourceConverter();
+                }
+            }
+            [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Stop All")]
+            public void RetractAllDrills()
+            {
+                foreach (Part eachPart in vessel.Parts)
+                {
+                    var thisPart = eachPart.FindModuleImplementing<ModuleAsteroidDrill>();
+                    if (thisPart != null) thisPart.StopResourceConverter();
+                }
+            }
+            [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Extend All")]
+            public void StartAllDrills()
+            {
+                foreach (Part eachPart in vessel.Parts)
+                {
+                    var thisPart = eachPart.FindModuleImplementing<ModuleResourceHarvester>();
+                    if (thisPart != null) thisPart.Start();
+                }
+            }
+            [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Retract All")]
+            public void StopAllDrills()
+            {
+                foreach (Part eachPart in vessel.Parts)
+                {
+                    var thisPart = eachPart.FindModuleImplementing<ModuleResourceHarvester>();
+                    if (thisPart != null) thisPart.??????????();
+                }
             }
         }
-        [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Stop All")]
-        public void RetractAllDrills()
-        {
-            foreach (Part eachPart in vessel.Parts)
-            {
-                var thisPart = eachPart.FindModuleImplementing<ModuleAsteroidDrill>();
-                if (thisPart != null) thisPart.StopResourceConverter();
-            }
-        }
-        [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Extend All")]
-        public void StartAllDrills()
-        {
-            foreach (Part eachPart in vessel.Parts)
-            {
-                var thisPart = eachPart.FindModuleImplementing<ModuleResourceHarvester>();
-                if (thisPart != null) thisPart.Start();
-            }
-        }
-        [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Retract All")]
-        public void StopAllDrills()
-        {
-            foreach (Part eachPart in vessel.Parts)
-            {
-                var thisPart = eachPart.FindModuleImplementing<ModuleResourceHarvester>();
-                if (thisPart != null) thisPart.??????????();
-            }
-        }
-    }
-    */
+        */
 
-    // ############# CARGO BAYS ############### //
-    //
-    // I can't do this either. Same reason as always: I don't know how.
-    /*
-    public class AYA_CargoBay : PartModule
-    {
-        [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Open All")]
-        public void OpenAllBays()
+        // ############# CARGO BAYS ############### //
+        //
+        // I can't do this either. Same reason as always: I don't know how.
+        /*
+        public class AYA_CargoBay : PartModule
         {
-            foreach (Part eachPart in vessel.Parts)
+            [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Open All")]
+            public void OpenAllBays()
             {
-                var thisPart = eachPart.FindModuleImplementing<ModuleCargoBay>();
-                if (thisPart != null) thisPart.();
+                foreach (Part eachPart in vessel.Parts)
+                {
+                    var thisPart = eachPart.FindModuleImplementing<ModuleCargoBay>();
+                    if (thisPart != null) thisPart.();
+                }
+            }
+            [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Close All")]
+            public void CloseAllBays()
+            {
+                foreach (Part eachPart in vessel.Parts)
+                {
+                    var thisPart = eachPart.FindModuleImplementing<ModuleCargoBay>();
+                    if (thisPart != null) thisPart.Retract();
+                }
             }
         }
-        [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Close All")]
-        public void CloseAllBays()
-        {
-            foreach (Part eachPart in vessel.Parts)
-            {
-                var thisPart = eachPart.FindModuleImplementing<ModuleCargoBay>();
-                if (thisPart != null) thisPart.Retract();
-            }
-        }
-    }
-    */
+        */
 }
