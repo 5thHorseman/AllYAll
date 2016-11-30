@@ -5,6 +5,11 @@ One-Button Common Action Grouping
 CC share-alike. Anyone is free to do anything they like with All Y'All's source, so long as they allow others to do the same.
 
 # CHANGELOG:
+- 0.9: MASSIVE rewrite with major additions, all by linuxgurugamer:
+  - Updated to 1.2.1
+  - Added Radiators, Drills, Reaction Wheels
+  - Set up single-button functionality.
+  - Was - in general - awesome.
 - 0.8: Added functionality to the new 1.2 "Science Box."
   - "Perform All Science" even though it's not actually a science experiment, for ease of use.
   - "Reset All Science" - the good part.
