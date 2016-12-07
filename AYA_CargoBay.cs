@@ -1,12 +1,6 @@
-﻿// ALL Y'ALL v0.5
-// By 5thHorseman
+﻿// ALL Y'ALL
+// By 5thHorseman with much help from many others
 // License: CC SA
-// v0.1: Added "Extend All" and "Retract All" to deployable solar panels.
-// v0.2: Added "Extend All" and "Retract All" to deployable radiators.
-// v0.3: Added "Perform All Science" to all science instruments.
-// v0.4: Fixed Surface Sample bug and added ability to perform all experiments in a part with multiple experiments
-// v0.5: Fixed Mystery Goo and Science Jr running when they had not been reset.
-// v0.9: (proposed) Modify UI to lessen the number of lines in right-click menus.
 
 using System;
 using System.Collections.Generic;
@@ -23,11 +17,17 @@ namespace AllYAll
     public class AYA_CargoBay : PartModule
     {
 
-        bool cargoBayOpen = false;
-
         [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Open Bays")]
         public void DoAllBays()
         {
+            bool cargoBayOpen = false;
+
+            var callingPart = this.part.FindModuleImplementing<ModuleAnimateGeneric>();   //Variable for the part doing the work.
+            if (callingPart.animSwitch == true)                                           //If the calling part is open...
+            {
+                cargoBayOpen = true;                                                      //...then it's open. Duh!
+            }
+
             foreach (Part eachPart in vessel.Parts)
             {
                 var thisPart = eachPart.FindModuleImplementing<ModuleCargoBay>();
@@ -52,48 +52,34 @@ namespace AllYAll
             }
         }
 
+
         public void FixedUpdate()
         {
             if (HighLogic.LoadedScene == GameScenes.EDITOR)
                 return;
 
-
-            bool  moving = false;
-            cargoBayOpen = false;
-
-            foreach (Part eachPart in vessel.Parts)                                          //Cycle through each part on the vessel
+            var thisPart = this.part.FindModuleImplementing<ModuleCargoBay>();                  //This is so the below code knows the part it's dealing with is a cargo bay.
+            if (thisPart != null)                                                               //Verify it's actually a cargo bay)
             {
-                var thisPart = eachPart.FindModuleImplementing<ModuleCargoBay>();
-                if (thisPart != null)
+                var thisPartAnimate = this.part.FindModuleImplementing<ModuleAnimateGeneric>();
+                if (thisPartAnimate != null)
                 {
-                    var thisPartAnimate = eachPart.FindModuleImplementing<ModuleAnimateGeneric>();
-                    if (thisPartAnimate != null)
+                    if (thisPartAnimate.aniState == ModuleAnimateGeneric.animationStates.MOVING)
                     {
-                        if (thisPartAnimate.aniState == ModuleAnimateGeneric.animationStates.MOVING)
-                        {
-                            moving = true;
-                            break;
-                        }
-                        if (thisPartAnimate.animSwitch)
-                            cargoBayOpen = true;
-
+                        Events["DoAllBays"].active = false;
+                    }
+                    if (thisPartAnimate.animSwitch)
+                    {
+                        Events["DoAllBays"].guiName = "Close all bays";
+                        Events["DoAllBays"].active = true;
+                    }
+                    else
+                    {
+                        Events["DoAllBays"].guiName = "Open all bays";
+                        Events["DoAllBays"].active = true;
                     }
                 }
             }
-
-            if (moving)
-            {
-                Events["DoAllBays"].active = false;
-                return;
-            }
-            Events["DoAllBays"].active = true;
-            if (cargoBayOpen)
-                Events["DoAllBays"].guiName = "Close all bays";
-            else
-                Events["DoAllBays"].guiName = "Open all bays";
         }
-
-
-
     }  
 }

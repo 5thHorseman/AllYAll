@@ -1,12 +1,6 @@
-﻿// ALL Y'ALL v0.5
-// By 5thHorseman
+﻿// ALL Y'ALL
+// By 5thHorseman with much help from many others
 // License: CC SA
-// v0.1: Added "Extend All" and "Retract All" to deployable solar panels.
-// v0.2: Added "Extend All" and "Retract All" to deployable radiators.
-// v0.3: Added "Perform All Science" to all science instruments.
-// v0.4: Fixed Surface Sample bug and added ability to perform all experiments in a part with multiple experiments
-// v0.5: Fixed Mystery Goo and Science Jr running when they had not been reset.
-// v0.9: (proposed) Modify UI to lessen the number of lines in right-click menus.
 
 using System;
 using System.Collections.Generic;
@@ -17,14 +11,8 @@ using UnityEngine;
 namespace AllYAll
 {
 
-    // ############# DRILLS ############### //
-    //
-    // This doesn't work. I don't know how to make it work.
-
     public class AYA_Drill : PartModule
     {
-
-
         bool resourceConvertersActive = false;
         bool drillsDeployed = false;
 

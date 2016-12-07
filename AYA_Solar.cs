@@ -1,12 +1,6 @@
-﻿// ALL Y'ALL v0.5
-// By 5thHorseman
+﻿// ALL Y'ALL
+// By 5thHorseman with much help from many others
 // License: CC SA
-// v0.1: Added "Extend All" and "Retract All" to deployable solar panels.
-// v0.2: Added "Extend All" and "Retract All" to deployable radiators.
-// v0.3: Added "Perform All Science" to all science instruments.
-// v0.4: Fixed Surface Sample bug and added ability to perform all experiments in a part with multiple experiments
-// v0.5: Fixed Mystery Goo and Science Jr running when they had not been reset.
-// v0.9: (proposed) Modify UI to lessen the number of lines in right-click menus.
 
 using System;
 using System.Collections.Generic;
@@ -21,73 +15,57 @@ namespace AllYAll
 
     public class AYA_Solar : PartModule
     {
-        bool isDeployedAndRetractable = false;
-        bool anyExtendable = false;
-        bool moving = false;
-
         [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Extend All")]
-        public void DoAllSolar()
+        public void DoAllSolar()                                                                //This runs every time you click "extend all" or "retract all"
         {
+            bool extended = true;                                                               //This is the check if we are extending or retracting all, default to retracting.
+            var callingPart = this.part.FindModuleImplementing<ModuleDeployableSolarPanel>();   //Variable for the part doing the work.
+            if (callingPart.deployState == ModuleDeployablePart.DeployState.RETRACTED)          //If the calling part is retracted...
+            {
+                extended = false;                                                               //...then it's not extended. Duh!
+            }
             foreach (Part eachPart in vessel.Parts)                                             //Cycle through each part on the vessel
             {
                 var thisPart = eachPart.FindModuleImplementing<ModuleDeployableSolarPanel>();   //If it's a solar panel...
-                if (thisPart != null)
+                if (thisPart != null && thisPart.animationName != "")                           //..and it has an animation (rules out ox-stats and the like)
                 {
-                    if (isDeployedAndRetractable)
-                        thisPart.Retract();                                    //Retract it
-                    else
-                        thisPart.Extend();                                     //Deploy it
+                    if (extended)                                                               //then if the calling part was extended...
+                    {
+                        thisPart.Retract();                                                     //Retract it
+                    }
+                    else                                                                        //otherwise...
+                    {
+                        thisPart.Extend();                                                      //Extend it
+                    }
                 }
             }
         }
 
-
-        public void FixedUpdate()
+        public void FixedUpdate()                                                               //This runs every second and makes sure the menus are correct.
         {
             if (HighLogic.LoadedScene == GameScenes.EDITOR)
                 return;
 
-
-            moving = false;
-            anyExtendable = false;
-            isDeployedAndRetractable = false;
-
-            foreach (Part eachPart in vessel.Parts)                                          //Cycle through each part on the vessel
+            var thisPart = this.part.FindModuleImplementing<ModuleDeployableSolarPanel>();      //This is so the below code knows the part it's dealing with is a solar panel.
+            if (thisPart != null && thisPart.animationName != "")                               //Verify it's actually a solar panel and has an animation (rules out ox-stats and the like)
             {
-                var thisPart = eachPart.FindModuleImplementing<ModuleDeployableSolarPanel>();
-                if (thisPart != null)
+                if (thisPart.deployState == ModuleDeployablePart.DeployState.EXTENDING ||
+                    thisPart.deployState == ModuleDeployablePart.DeployState.RETRACTING)        //If it's extending or retracting...
                 {
-                    if (thisPart.deployState == ModuleDeployablePart.DeployState.EXTENDING ||
-                         thisPart.deployState == ModuleDeployablePart.DeployState.RETRACTING)
-                    {
-                        moving = true;
-                        break;
-                    }
-
-                    if (thisPart.deployState == ModuleDeployablePart.DeployState.RETRACTED)
-                        anyExtendable = true;
-                    if (thisPart.retractable && thisPart.deployState == ModuleDeployablePart.DeployState.EXTENDED)
-                        isDeployedAndRetractable = true;
+                    Events["DoAllSolar"].active = false;                                        //...you don't get no menu option!
                 }
-            }
 
-            if (moving)
-            {
-                Events["DoAllSolar"].active = false;
-                return;
-            }
-
-            if (isDeployedAndRetractable)
-            {
-                Events["DoAllSolar"].guiName = "Retract all solar";
-                Events["DoAllSolar"].active = true;
-            }
-            else
-            {
-                Events["DoAllSolar"].guiName = "Extend all solar";
-                Events["DoAllSolar"].active = anyExtendable;
+                if (thisPart.deployState == ModuleDeployablePart.DeployState.RETRACTED)         //If it's retracted...
+                {
+                    Events["DoAllSolar"].guiName = "Extend all solar";                          //Set it to extend.
+                    Events["DoAllSolar"].active = true;
+                }
+                if (thisPart.retractable && thisPart.deployState == ModuleDeployablePart.DeployState.EXTENDED)  //If it's extended AND retractable...
+                {
+                    Events["DoAllSolar"].guiName = "Retract all solar";                         //set it to retract.
+                    Events["DoAllSolar"].active = true;
+                }
             }
         }
     }
 }
-

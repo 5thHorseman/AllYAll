@@ -1,12 +1,6 @@
-﻿// ALL Y'ALL v0.5
-// By 5thHorseman
+﻿// ALL Y'ALL
+// By 5thHorseman with much help from many others
 // License: CC SA
-// v0.1: Added "Extend All" and "Retract All" to deployable solar panels.
-// v0.2: Added "Extend All" and "Retract All" to deployable radiators.
-// v0.3: Added "Perform All Science" to all science instruments.
-// v0.4: Fixed Surface Sample bug and added ability to perform all experiments in a part with multiple experiments
-// v0.5: Fixed Mystery Goo and Science Jr running when they had not been reset.
-// v0.9: (proposed) Modify UI to lessen the number of lines in right-click menus.
 
 using System;
 using System.Collections.Generic;
@@ -20,71 +14,57 @@ namespace AllYAll
 
     public class AYA_Radiator : PartModule
     {
-
-        bool isDeployedAndRetractable = false;
-        bool anyExtendable = false;
-
         [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Extend All")]
         public void DoAllRadiator()
         {
-            foreach (Part eachPart in vessel.Parts)                                          //Cycle through each part on the vessel
+            bool extended = true;
+            var callingPart = this.part.FindModuleImplementing<ModuleDeployableRadiator>();     //Variable for the part doing the work.
+            if (callingPart.deployState == ModuleDeployablePart.DeployState.RETRACTED)          //If the calling part is retracted...
             {
-                var thisPart = eachPart.FindModuleImplementing<ModuleDeployableRadiator>();  //If it's a radiator...
-                if (thisPart != null)
+                extended = false;                                                               //...then it's not extended. Duh!
+            }
+            foreach (Part eachPart in vessel.Parts)                                             //Cycle through each part on the vessel
+            {
+                var thisPart = eachPart.FindModuleImplementing<ModuleDeployableRadiator>();     //If it's a radiator...
+                if (thisPart != null && thisPart.animationName != "")                           //..and it has an animation (rules out passive radiators)
                 {
-                    if (isDeployedAndRetractable)
-                        thisPart.Retract();                                    //Retract it
-                    else
-                        thisPart.Extend();                                     //Deploy it
+                    if (extended)                                                               //then if the calling part was extended...
+                    {
+                        thisPart.Retract();                                                     //Retract it
+                    }
+                    else                                                                        //otherwise...
+                    {
+                        thisPart.Extend();                                                      //Extend it
+                    }
                 }
             }
         }
-
-        bool moving = false;
 
         public void FixedUpdate()
         {
             if (HighLogic.LoadedScene == GameScenes.EDITOR)
                 return;
 
-            moving = false;
-            anyExtendable = false;
-            isDeployedAndRetractable = false;
-            foreach (Part eachPart in vessel.Parts)                                          //Cycle through each part on the vessel
+            var thisPart = this.part.FindModuleImplementing<ModuleDeployableRadiator>();        //This is so the below code knows the part it's dealing with is a radiator.
+            if (thisPart != null && thisPart.animationName != "")                               //Verify it's actually a radiator and has an animation (rules out passive radiators)
             {
-                var thisPart = eachPart.FindModuleImplementing<ModuleDeployableRadiator>();  //If it's a radiator...
-                if (thisPart != null)
+                if (thisPart.deployState == ModuleDeployablePart.DeployState.EXTENDING ||
+                    thisPart.deployState == ModuleDeployablePart.DeployState.RETRACTING)        //If it's extending or retracting...
                 {
-                    if (thisPart.deployState == ModuleDeployablePart.DeployState.EXTENDING ||
-                        thisPart.deployState == ModuleDeployablePart.DeployState.RETRACTING)
-                    {
-                        moving = true;
-                        break;
-                    }
+                    Events["DoAllRadiator"].active = false;                                     //...you don't get no menu option!
+                }
 
-                    if (thisPart.deployState == ModuleDeployablePart.DeployState.RETRACTED)
-                        anyExtendable = true;
-                    if (thisPart.retractable && thisPart.deployState == ModuleDeployablePart.DeployState.EXTENDED)
-                        isDeployedAndRetractable = true;
+                if (thisPart.deployState == ModuleDeployablePart.DeployState.RETRACTED)         //If it's retracted...
+                {
+                    Events["DoAllRadiator"].guiName = "Extend all radiators";                   //Set it to extend.
+                    Events["DoAllRadiator"].active = true;
+                }
+                if (thisPart.deployState == ModuleDeployablePart.DeployState.EXTENDED)          //If it's extended...
+                {
+                    Events["DoAllRadiator"].guiName = "Retract all radiators";                  //set it to retract.
+                    Events["DoAllRadiator"].active = true;
                 }
             }
-            if (moving)
-            {
-                Events["DoAllRadiator"].active = false;
-                return;
-            }
-
-            if (isDeployedAndRetractable)
-            {
-                Events["DoAllRadiator"].guiName = "Retract all radiators";
-                Events["DoAllRadiator"].active = true;
-            }
-            else
-            {
-                Events["DoAllRadiator"].guiName = "Extend all radiators";
-                Events["DoAllRadiator"].active = anyExtendable;
-            }
-
         }
     }
 }
